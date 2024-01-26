@@ -55,6 +55,19 @@ public class UserController : ControllerBase
         return user;
     }
 
+    [HttpGet("UserJobInfo/{userId}")]
+    public UserJobInfo GetUserJobInfo(int userId)
+    {
+        string sql = @" 
+            SELECT  [UserId]
+                , [JobTitle]
+                , [Department]
+            FROM  TutorialAppSchema.UserJobInfo
+                WHERE UserId = " + userId.ToString();
+        UserJobInfo userJobInfo = _dapper.LoadDataSingle<UserJobInfo>(sql);
+        return userJobInfo;
+    }
+
     [HttpPut("EditUser")]
     public IActionResult EditUser(User user)
     {
@@ -72,6 +85,22 @@ public class UserController : ControllerBase
         return Ok();
         }
         throw new Exception("Failed to Update User");
+    }
+
+    [HttpPut("EditUserJobInfo")]
+    public IActionResult EditUserJobInfo(UserJobInfo userJobInfo)
+    {
+        string sql = @" 
+             UPDATE TutorialAppSchema.UserJobInfo
+             SET [JobTitle] = '" + userJobInfo.JobTitle +
+             "', [Department] = '"+ userJobInfo.Department +
+             "' WHERE UserId = " + userJobInfo.UserId;
+        Console.WriteLine(sql);
+        if (_dapper.ExecuteSql(sql))
+        {
+            return Ok();
+        }
+        throw new Exception("Failed to Update UserJobInfo");
     }
 
     [HttpPost("AddUser")]

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using DotnetAPI.Data;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using AutoMapper;
+using System.Linq;
 
 namespace DotnetAPI.Controllers;
 
@@ -38,6 +39,18 @@ public class UserEFController : ControllerBase
         if (user != null)
         {
             return user;
+        }
+
+        throw new Exception("Failed to get User");
+    }
+
+    [HttpGet("GetUserJobInfo/{userId}")]
+    public UserJobInfo GetUserJobInfo(int userId)
+    {
+        UserJobInfo? userJobInfo = _entityFramework.UserJobInfo.Where(u => u.UserId == userId).FirstOrDefault<UserJobInfo>();
+        if (userJobInfo != null)
+        {
+            return userJobInfo;
         }
 
         throw new Exception("Failed to get User");
