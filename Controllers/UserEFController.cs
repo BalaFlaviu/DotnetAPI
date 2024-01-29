@@ -13,10 +13,14 @@ namespace DotnetAPI.Controllers;
 public class UserEFController : ControllerBase
 {
     DataContextEF _entityFramework;
+    IUserRepository _userRepository;
     IMapper _mapper;
-    public UserEFController(IConfiguration config)
+    public UserEFController(IConfiguration config, IUserRepository userRepository)
     {
         _entityFramework = new DataContextEF(config);
+
+        _userRepository = userRepository;
+
         _mapper = new Mapper(new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<UserToAddDto, User>();
@@ -27,7 +31,7 @@ public class UserEFController : ControllerBase
     // public IActionResult Test()
     public IEnumerable<User> GetUsers()
     {
-        IEnumerable<User> users = _entityFramework.Users.ToList<User>();
+        IEnumerable<User> users = _userRepository.GetUsers();
         return users;
 
     }
@@ -35,13 +39,14 @@ public class UserEFController : ControllerBase
     [HttpGet("GetSingleUser/{userId}")]
     public User GetSingleUser(int userId)
     {
-        User? user = _entityFramework.Users.Where(u => u.UserId == userId).FirstOrDefault<User>();
-        if (user != null)
-        {
-            return user;
-        }
+        //User? user = _entityFramework.Users.Where(u => u.UserId == userId).FirstOrDefault<User>();
+        //if (user != null)
+        //{
+        //    return user;
+        //}
 
-        throw new Exception("Failed to get User");
+        //throw new Exception("Failed to get User");
+        return _userRepository.GetSingleUser(userId);
     }
 
     [HttpGet("GetUserJobInfo/{userId}")]
@@ -71,7 +76,7 @@ public class UserEFController : ControllerBase
             userDb.LastName = user.LastName;
             userDb.Email = user.Email;
             userDb.Gender = user.Gender;
-            if (_entityFramework.SaveChanges() >0)
+            if (_userRepository.SaveChanges())
             {
                 return Ok();
             }
@@ -91,8 +96,8 @@ public class UserEFController : ControllerBase
         //userDb.Email = user.Email;
         //userDb.Gender = user.Gender;
 
-        _entityFramework.Add(userDb);
-        if (_entityFramework.SaveChanges() >0)
+        _userRepository.AddEntity<User>(userDb);
+        if (_userRepository.SaveChanges())
         {
             return Ok();
         }
@@ -108,8 +113,8 @@ public class UserEFController : ControllerBase
 
         if (userDb != null)
         {
-            _entityFramework.Users.Remove(userDb);
-            if (_entityFramework.SaveChanges() >0)
+            _userRepository.RemoveEntity<User>(userDb);
+            if (_userRepository.SaveChanges())
             {
                 return Ok();
             }
