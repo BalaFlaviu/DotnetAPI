@@ -1,6 +1,6 @@
+using System.Data;
 using Dapper;
 using Microsoft.Data.SqlClient;
-using System.Data;
 
 namespace DotnetAPI.Data
 {
@@ -14,40 +14,41 @@ namespace DotnetAPI.Data
 
         public IEnumerable<T> LoadData<T>(string sql)
         {
-            System.Data.IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             return dbConnection.Query<T>(sql);
         }
 
         public T LoadDataSingle<T>(string sql)
         {
-            System.Data.IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             return dbConnection.QuerySingle<T>(sql);
         }
 
         public bool ExecuteSql(string sql)
         {
-            System.Data.IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             return dbConnection.Execute(sql) > 0;
         }
 
         public int ExecuteSqlWithRowCount(string sql)
         {
-            System.Data.IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             return dbConnection.Execute(sql);
         }
+
         public bool ExecuteSqlWithParameters(string sql, List<SqlParameter> parameters)
         {
             SqlCommand commandWithParams = new SqlCommand(sql);
 
-            foreach (SqlParameter parameter in parameters) 
+            foreach (SqlParameter parameter in parameters)
             {
                 commandWithParams.Parameters.Add(parameter);
             }
 
-            System.Data.IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            SqlConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             dbConnection.Open();
 
-            commandWithParams.Connection = (SqlConnection)dbConnection;
+            commandWithParams.Connection = dbConnection;
 
             int rowsAffected = commandWithParams.ExecuteNonQuery();
 
@@ -56,5 +57,4 @@ namespace DotnetAPI.Data
             return rowsAffected > 0;
         }
     }
-
 }
